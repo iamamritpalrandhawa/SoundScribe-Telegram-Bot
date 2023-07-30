@@ -11,7 +11,6 @@ const User = require("./Modals/User.cjs");
 const Song = require("./Modals/Song.cjs");
 const Download_History = require("./Modals/History.cjs");
 
-
 // const axios = require("axios");
 const bot = new Telegraf("6696254467:AAEDrUt9gjAYDrgeN9_RNnZz4UjzQSs4SLk");
 connectToMongo();
@@ -254,5 +253,6 @@ bot.action(/([-_a-zA-Z0-9]{11}),(.*?)$/, async (ctx) => {
     ctx.answerCbQuery("An error occurred. Please try again later.");
   }
 });
-
+export default check = ()=>{
 bot.launch();
+};
