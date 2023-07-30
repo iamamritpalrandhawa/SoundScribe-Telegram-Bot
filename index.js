@@ -10,11 +10,7 @@ const connectToMongo = require("./db.cjs");
 const User = require("./Modals/User.cjs");
 const Song = require("./Modals/Song.cjs");
 const Download_History = require("./Modals/History.cjs");
-const express = require('express');
-const server = express();
-server.listen(8080,()=>{
-  console.log("Server is running.");
-});
+
 
 // const axios = require("axios");
 const bot = new Telegraf("6696254467:AAEDrUt9gjAYDrgeN9_RNnZz4UjzQSs4SLk");
