@@ -39,14 +39,22 @@ async function main(youtubeUrl, audioFileName) {
   const newName = path.join(downloadsFolder, `${audioFileName}.mp3`); // Set the output file path with extension
 
   createDownloadsFolder(); // Create the "downloads" folder before fetching the video
-  await fetchVideo(youtubeUrl, newName)
-    .then(() => {
-      console.log("Done");
-      return newName;
-    })
-    .catch((err) => {
-      console.log("Error", err);
-    });
+  // await fetchVideo(youtubeUrl, newName)
+  //   .then(() => {
+  //     console.log("Done");
+  //     return newName;
+  //   })
+  //   .catch((err) => {
+  //     console.log("Error", err);
+  //   });
+  try {
+    await fetchVideo(youtubeUrl, newName);
+    console.log("Done");
+    return newName;
+  } catch (err) {
+    console.log("Error", err);
+    throw err; // Rethrow the error to be handled by the caller
+  }
 }
 
 // {

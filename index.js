@@ -55,15 +55,20 @@ bot.start(async (ctx) => {
 // Store results for each user
 
 bot.on("text", async (ctx) => {
-  const chatId = ctx.chat.id;
-  // Set initial values for each user
-  userResults.set(chatId, {
-    results: await fun(ctx.message.text),
-    currentIndex: 0,
-  });
+  try {
+    const chatId = ctx.chat.id;
+    // Set initial values for each user
+    userResults.set(chatId, {
+      results: await fun(ctx.message.text),
+      currentIndex: 0,
+    });
 
-  // Send the message with the inline keyboard and data for the "Download ⏬" button
-  sendSongMessage(ctx, chatId);
+    // Send the message with the inline keyboard and data for the "Download ⏬" button
+    sendSongMessage(ctx, chatId);
+  } catch (err) {
+    console.error("Error in bot.on('text') handler:", err);
+    ctx.reply("Oops! Something went wrong. Please try again later.");
+  }
 });
 
 bot.action("next_song", async (ctx) => {
@@ -197,47 +202,56 @@ async function sendAudioToUser(ctx, audioFilePath, title) {
 }
 
 bot.action(/([-_a-zA-Z0-9]{11}),(.*?)$/, async (ctx) => {
-  ctx.answerCbQuery("Download link will be sent shortly."); // This will display a notification to the user.
-  const callbackData = ctx.match[0].split(",");
-  const youtubeId = callbackData[0];
-  const title = callbackData[1];
-  let newSong = "";
+  try {
+    ctx.answerCbQuery("Download link will be sent shortly."); // This will display a notification to the user.
+    const callbackData = ctx.match[0].split(",");
+    const youtubeId = callbackData[0];
+    const title = callbackData[1];
+    let newSong = "";
 
-  // Check if the youtubeId is present in the database
-  const song = await Song.findOne({ YouTube_ID: youtubeId });
+    // Check if the youtubeId is present in the database
+    const song = await Song.findOne({ YouTube_ID: youtubeId });
 
-  if (song && song.File_ID) {
-    // If the youtubeId is present and has a file_id, send the audio to the user using the stored file_id
-    const file_id = song.File_ID; // Replace 'file_id_here' with the actual file_id
-    await bot.telegram.sendAudio(ctx.chat.id, file_id);
-  } else {
-    // If the youtubeId is not present in the database, download the audio and store the details in the database
-    const audioFilePath = await downloader(youtubeId, title);
-
-    // Send the downloaded audio to the user and get the file_id
-    const file_id = await sendAudioToUser(ctx, `downloads/${title}.mp3`, title);
-
-    // Save the youtubeId and file_id in the Song model
-    if (!song) {
-      newSong = new Song({
-        YouTube_ID: youtubeId,
-        File_ID: file_id,
-        Title: title,
-      });
-      await newSong.save();
+    if (song && song.File_ID) {
+      // If the youtubeId is present and has a file_id, send the audio to the user using the stored file_id
+      const file_id = song.File_ID; // Replace 'file_id_here' with the actual file_id
+      await bot.telegram.sendAudio(ctx.chat.id, file_id);
     } else {
-      // If the song entry exists but the File_ID is missing, update it
-      song.File_ID = file_id;
-      await song.save();
+      // If the youtubeId is not present in the database, download the audio and store the details in the database
+      const audioFilePath = await downloader(youtubeId, title);
+
+      // Send the downloaded audio to the user and get the file_id
+      const file_id = await sendAudioToUser(
+        ctx,
+        `downloads/${title}.mp3`,
+        title
+      );
+
+      // Save the youtubeId and file_id in the Song model
+      if (!song) {
+        newSong = new Song({
+          YouTube_ID: youtubeId,
+          File_ID: file_id,
+          Title: title,
+        });
+        await newSong.save();
+      } else {
+        // If the song entry exists but the File_ID is missing, update it
+        song.File_ID = file_id;
+        await song.save();
+      }
     }
+    const user = await User.findOne({ User_ID: ctx.from.id });
+    // Create and save a new Download_History entry
+    const downloadHistory = new Download_History({
+      User: user._id, // Assuming ctx.from.id contains the user's ID
+      Song: newSong ? newSong._id : song._id, // Assuming song._id contains the song's ID or use undefined if song is not present
+    });
+    await downloadHistory.save();
+  } catch (err) {
+    console.error("Error in bot.action handler:", err);
+    ctx.answerCbQuery("An error occurred. Please try again later.");
   }
-  const user = await User.findOne({ User_ID: ctx.from.id });
-  // Create and save a new Download_History entry
-  const downloadHistory = new Download_History({
-    User: user._id, // Assuming ctx.from.id contains the user's ID
-    Song: newSong ? newSong._id : song._id, // Assuming song._id contains the song's ID or use undefined if song is not present
-  });
-  await downloadHistory.save();
 });
 
 bot.launch();
