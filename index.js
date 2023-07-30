@@ -253,6 +253,5 @@ bot.action(/([-_a-zA-Z0-9]{11}),(.*?)$/, async (ctx) => {
     ctx.answerCbQuery("An error occurred. Please try again later.");
   }
 });
-export default check = ()=>{
+
 bot.launch();
-};
