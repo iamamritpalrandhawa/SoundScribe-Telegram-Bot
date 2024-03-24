@@ -12,7 +12,7 @@ SoundScribe Telegram Bot is a versatile bot designed for downloading and listeni
 ## Visit link 
  * [SoundScribe](https://t.me/soundscribebot) 
 ## Demo
-![Image Description](https://github.com/iamamritpalrandhawa/SoundScribe-Telegram-Bot/blob/main/-6053118893582565494_121%20(1).jpg)
+![Image Description](https://github.com/iamamritpalrandhawa/SoundScribe-Telegram-Bot/blob/main/sound-scribe-demo.jpg)
 
 ## Contributing
 Contributions are welcome! If you find any bugs or have suggestions for improvements, please open an issue or submit a pull request.
