@@ -12,7 +12,7 @@ const Song = require("./Modals/Song.cjs");
 const Download_History = require("./Modals/History.cjs");
 
 // const axios = require("axios");
-const bot = new Telegraf("6696254467:AAEDrUt9gjAYDrgeN9_RNnZz4UjzQSs4SLk");
+const bot = new Telegraf(process.env.TELEGRAM_API);
 connectToMongo();
 let userResults = new Map();
 // Replace './models' with the path to your models file
